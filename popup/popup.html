@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>简历JD匹配分析</title>
+  <link rel="stylesheet" href="popup.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>简历 × JD 匹配分析</h1>
+
+    <!-- 简历未填写时显示 -->
+    <div id="noResumeSection" class="section hidden">
+      <p>还没有简历信息,请上传PDF简历自动识别,或手动填写。</p>
+      <button id="setupResumeBtn">上传 / 填写简历</button>
+    </div>
+
+    <!-- 主功能区 -->
+    <div id="mainSection" class="section hidden">
+      <div class="resume-summary">
+        <span id="resumeSummaryText"></span>
+        <a href="#" id="editResumeLink">编辑简历</a>
+      </div>
+
+      <p class="hint">点击「自动识别本页JD」,或在页面上选中JD文本;识别结果可在下方编辑确认后再分析。</p>
+      <button id="autoExtractBtn" class="secondary">自动识别本页JD</button>
+      <textarea id="jdInput" rows="6" placeholder="JD文本会出现在这里,也可手动粘贴或编辑..."></textarea>
+      <div id="jdStatus" class="hint"></div>
+      <button id="analyzeBtn">分析匹配度</button>
+
+      <div id="loading" class="hidden">分析中,请稍候...</div>
+      <div id="errorBox" class="error hidden"></div>
+
+      <div id="resultSection" class="hidden">
+        <div class="score-box">
+          匹配分数:<span id="matchScore">--</span> / 100
+        </div>
+
+        <h3>✅ 匹配的技能/经历</h3>
+        <ul id="matchedSkills"></ul>
+
+        <h3>⚠️ 缺失或不足</h3>
+        <ul id="missingSkills"></ul>
+
+        <h3>💡 改进建议</h3>
+        <ul id="suggestions"></ul>
+      </div>
+    </div>
+
+    <div class="footer">
+      <a href="#" id="openOptions">设置 API Key</a>
+    </div>
+  </div>
+
+  <script src="../lib/resume-data.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

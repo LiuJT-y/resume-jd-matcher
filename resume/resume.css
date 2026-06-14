@@ -1,0 +1,200 @@
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+  margin: 0;
+  padding: 24px 16px 60px;
+  background: #f3f4f6;
+  color: #222;
+}
+
+.page {
+  max-width: 720px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 22px;
+  margin: 0 0 8px;
+}
+
+.hint {
+  font-size: 13px;
+  color: #555;
+  line-height: 1.6;
+  margin: 0 0 16px;
+}
+
+.card {
+  background: #fff;
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.card h2 {
+  font-size: 15px;
+  margin: 0 0 12px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.card-header h2 {
+  margin: 0;
+}
+
+label {
+  display: block;
+  font-size: 12px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+label.full {
+  margin-bottom: 0;
+}
+
+label:last-child {
+  margin-bottom: 0;
+}
+
+input[type="text"],
+textarea {
+  display: block;
+  width: 100%;
+  margin-top: 4px;
+  padding: 8px;
+  font-size: 13px;
+  font-family: inherit;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+input[type="text"]:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+}
+
+/* 上传区 */
+.upload-card {
+  text-align: center;
+}
+
+.file-label {
+  display: inline-block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #2563eb;
+  margin-bottom: 8px;
+}
+
+#pdfInput {
+  display: block;
+  margin: 0 auto;
+  font-size: 13px;
+}
+
+.status {
+  margin-top: 10px;
+  font-size: 12px;
+  color: #666;
+  min-height: 16px;
+}
+
+.status.success {
+  color: #15803d;
+}
+
+.status.error {
+  color: #b91c1c;
+}
+
+/* 重复项 */
+.repeat-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.repeat-item {
+  border: 1px solid #eee;
+  border-radius: 8px;
+  padding: 12px;
+  background: #fafafa;
+}
+
+.repeat-item .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.remove-btn {
+  margin-top: 4px;
+  background: none;
+  border: none;
+  color: #b91c1c;
+  font-size: 12px;
+  cursor: pointer;
+  padding: 0;
+}
+
+.remove-btn:hover {
+  text-decoration: underline;
+}
+
+.empty-hint {
+  font-size: 12px;
+  color: #999;
+}
+
+/* 按钮 */
+.add-btn {
+  border: 1px solid #2563eb;
+  background: #fff;
+  color: #2563eb;
+  border-radius: 6px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.add-btn:hover {
+  background: #eff6ff;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+#saveBtn {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+#saveBtn:hover {
+  opacity: 0.9;
+}
+
+.saved {
+  font-size: 13px;
+  color: #15803d;
+}

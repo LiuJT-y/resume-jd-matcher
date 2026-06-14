@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>编辑简历信息</title>
+  <link rel="stylesheet" href="resume.css" />
+</head>
+<body>
+  <div class="page">
+    <h1>简历信息</h1>
+    <p class="hint">
+      上传PDF简历自动识别并填充下方表单,或直接手动填写。
+      <strong>自动识别结果可能有误或不全,请仔细核对并修正后再保存。</strong>
+    </p>
+
+    <section class="card upload-card">
+      <label class="file-label" for="pdfInput">选择PDF简历文件并自动识别</label>
+      <input type="file" id="pdfInput" accept="application/pdf" />
+      <div id="parseStatus" class="status"></div>
+    </section>
+
+    <form id="resumeForm">
+      <section class="card">
+        <h2>基本信息</h2>
+        <label>姓名
+          <input type="text" id="name" />
+        </label>
+        <label>求职意向 / 目标职位
+          <input type="text" id="title" />
+        </label>
+        <label>联系方式(电话 / 邮箱 / 地址等)
+          <input type="text" id="contact" />
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>自我评价</h2>
+        <label class="full">
+          <textarea id="summary" rows="4" placeholder="个人简介、自我评价..."></textarea>
+        </label>
+      </section>
+
+      <section class="card">
+        <h2>技能</h2>
+        <label class="full">
+          <textarea id="skills" rows="2" placeholder="如:Python、SQL、数据分析、项目管理..."></textarea>
+        </label>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>教育经历</h2>
+          <button type="button" class="add-btn" data-add="education">+ 添加一条</button>
+        </div>
+        <div id="educationList" class="repeat-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>工作经历</h2>
+          <button type="button" class="add-btn" data-add="experience">+ 添加一条</button>
+        </div>
+        <div id="experienceList" class="repeat-list"></div>
+      </section>
+
+      <section class="card">
+        <div class="card-header">
+          <h2>项目经历</h2>
+          <button type="button" class="add-btn" data-add="projects">+ 添加一条</button>
+        </div>
+        <div id="projectsList" class="repeat-list"></div>
+      </section>
+
+      <div class="actions">
+        <button type="submit" id="saveBtn">保存简历</button>
+        <span id="saveMsg" class="saved"></span>
+      </div>
+    </form>
+  </div>
+
+  <script src="../lib/resume-data.js"></script>
+  <script type="module" src="resume.js"></script>
+</body>
+</html>

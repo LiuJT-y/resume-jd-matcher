@@ -1,0 +1,136 @@
+body {
+  font-family: -apple-system, "Segoe UI", "PingFang SC", sans-serif;
+  width: 360px;
+  margin: 0;
+  padding: 0;
+  color: #222;
+}
+
+.container {
+  padding: 16px;
+}
+
+h1 {
+  font-size: 16px;
+  margin: 0 0 12px 0;
+}
+
+h3 {
+  font-size: 13px;
+  margin: 12px 0 4px 0;
+}
+
+.hidden {
+  display: none !important;
+}
+
+.hint {
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 8px;
+}
+
+.resume-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #333;
+  background: #f5f5f5;
+  border-radius: 6px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+}
+
+.resume-summary a {
+  color: #2563eb;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+textarea {
+  width: 100%;
+  box-sizing: border-box;
+  font-size: 12px;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  resize: vertical;
+}
+
+#jdInput {
+  margin-top: 8px;
+}
+
+#jdStatus {
+  margin-top: 6px;
+  margin-bottom: 0;
+}
+
+button {
+  width: 100%;
+  padding: 8px;
+  margin-top: 8px;
+  border: none;
+  border-radius: 6px;
+  background: #2563eb;
+  color: white;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+button.secondary {
+  background: #e5e7eb;
+  color: #333;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+#loading {
+  text-align: center;
+  font-size: 12px;
+  color: #666;
+  margin-top: 8px;
+}
+
+.error {
+  margin-top: 8px;
+  padding: 8px;
+  background: #fee2e2;
+  color: #b91c1c;
+  border-radius: 6px;
+  font-size: 12px;
+}
+
+.score-box {
+  margin-top: 12px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  padding: 8px;
+  background: #eff6ff;
+  border-radius: 6px;
+}
+
+ul {
+  margin: 4px 0;
+  padding-left: 18px;
+  font-size: 12px;
+}
+
+li {
+  margin-bottom: 3px;
+}
+
+.footer {
+  margin-top: 12px;
+  text-align: center;
+  font-size: 11px;
+}
+
+.footer a {
+  color: #2563eb;
+  text-decoration: none;
+}
