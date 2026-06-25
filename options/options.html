@@ -53,6 +53,14 @@
     请前往 console.anthropic.com 获取你的 API Key。
   </p>
 
+  <label for="trackerUrl">投递记录工具地址</label>
+  <input type="text" id="trackerUrl" placeholder="http://localhost:3000" />
+  <p class="note">
+    用于「保存到投递记录」按钮。填你本地或部署的 job-tracker 地址，不含末尾斜杠，
+    例如 http://localhost:3000。留空则默认 http://localhost:3000。
+    注意：如果改成 localhost 以外的地址，需要同步在 manifest.json 的 host_permissions 里加上该来源。
+  </p>
+
   <button id="saveBtn">保存</button>
   <span id="savedMsg" class="saved" style="display:none;">已保存</span>
 

@@ -45,6 +45,45 @@
         <h3>💡 改进建议</h3>
         <ul id="suggestions"></ul>
       </div>
+
+      <!-- 保存到投递记录:分析成功后才显示;点按钮才真正保存 -->
+      <div id="saveSection" class="hidden">
+        <h3>📥 保存到投递记录</h3>
+        <p class="hint">核对下方信息(公司/岗位已尽量自动识别),确认后点击保存。</p>
+
+        <label class="field-label" for="saveCompany">公司 *</label>
+        <input type="text" id="saveCompany" class="field" placeholder="公司名称" />
+
+        <label class="field-label" for="savePosition">岗位 *</label>
+        <input type="text" id="savePosition" class="field" placeholder="岗位名称" />
+
+        <label class="field-label" for="saveCity">城市</label>
+        <input type="text" id="saveCity" class="field" placeholder="工作城市" />
+
+        <div class="field-row">
+          <div class="field-col">
+            <label class="field-label" for="saveChannel">渠道</label>
+            <select id="saveChannel" class="field">
+              <option value="OFFICIAL">官网</option>
+              <option value="REFERRAL">内推</option>
+              <option value="HEADHUNTER">猎头</option>
+              <option value="SOCIAL">社交</option>
+              <option value="OTHER">其他</option>
+            </select>
+          </div>
+          <div class="field-col">
+            <label class="field-label" for="savePriority">优先级</label>
+            <select id="savePriority" class="field">
+              <option value="MEDIUM">中</option>
+              <option value="HIGH">高优先</option>
+              <option value="LOW">低</option>
+            </select>
+          </div>
+        </div>
+
+        <button id="saveToTrackerBtn">确认保存到投递记录</button>
+        <div id="saveStatus" class="hint"></div>
+      </div>
     </div>
 
     <div class="footer">

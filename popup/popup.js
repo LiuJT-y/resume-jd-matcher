@@ -14,7 +14,19 @@ const errorBox = document.getElementById("errorBox");
 const resultSection = document.getElementById("resultSection");
 const openOptions = document.getElementById("openOptions");
 
+// 保存到投递记录相关
+const saveSection = document.getElementById("saveSection");
+const saveCompany = document.getElementById("saveCompany");
+const savePosition = document.getElementById("savePosition");
+const saveCity = document.getElementById("saveCity");
+const saveChannel = document.getElementById("saveChannel");
+const savePriority = document.getElementById("savePriority");
+const saveToTrackerBtn = document.getElementById("saveToTrackerBtn");
+const saveStatus = document.getElementById("saveStatus");
+
 let activeTabId = null;
+let activeTabUrl = null;
+let lastMatchScore = null; // 最近一次分析得到的匹配分,保存时一起带上
 
 init();
 
@@ -54,6 +66,7 @@ function showMainSection(resumeData) {
 async function loadSelectedJd() {
   const [tab] = await chrome.tabs.query({ active: true, currentWindow: true });
   activeTabId = tab && tab.id ? tab.id : null;
+  activeTabUrl = tab && tab.url ? tab.url : null; // 作为投递记录的 jobLink
   if (!activeTabId) return;
 
   try {
@@ -108,7 +121,13 @@ autoExtractBtn.addEventListener("click", async () => {
       return;
     }
 
-    jdInput.value = response.data;
+    // 现在 EXTRACT_JD 返回结构化对象 { jd, company, position, city }
+    const data = response.data;
+    jdInput.value = data.jd || "";
+    // 预填保存表单(此时还隐藏着,分析成功后才显示);仅在识别到时填,避免覆盖用户已改的内容
+    if (data.company) saveCompany.value = data.company;
+    if (data.position) savePosition.value = data.position;
+    if (data.city) saveCity.value = data.city;
     setJdStatus("已自动识别,请核对/编辑下方JD,确认无误后点击分析。");
   });
 });
@@ -127,6 +146,8 @@ editResumeLink.addEventListener("click", (e) => {
 analyzeBtn.addEventListener("click", async () => {
   errorBox.classList.add("hidden");
   resultSection.classList.add("hidden");
+  saveSection.classList.add("hidden"); // 重新分析时先收起保存区
+  setSaveStatus("");
 
   const jdText = jdInput.value.trim();
   if (!jdText) {
@@ -172,6 +193,10 @@ function renderResult(data) {
   fillList("suggestions", data.suggestions);
 
   resultSection.classList.remove("hidden");
+
+  // 分析成功后才显示「保存到投递记录」表单;此时 matchScore 必有值
+  lastMatchScore = data.matchScore;
+  saveSection.classList.remove("hidden");
 }
 
 function fillList(elementId, items) {
@@ -183,6 +208,47 @@ function fillList(elementId, items) {
     ul.appendChild(li);
   });
 }
+
+function setSaveStatus(msg, isError = false) {
+  saveStatus.textContent = msg || "";
+  saveStatus.style.color = isError ? "#b91c1c" : "#16a34a";
+}
+
+// 点「确认保存到投递记录」才真正 POST 到 job-tracker —— 分析本身不会触发保存
+saveToTrackerBtn.addEventListener("click", () => {
+  const company = saveCompany.value.trim();
+  const position = savePosition.value.trim();
+  if (!company || !position) {
+    setSaveStatus("请填写公司和岗位", true);
+    return;
+  }
+
+  const application = {
+    company,
+    position,
+    city: saveCity.value.trim() || null,
+    channel: saveChannel.value,
+    priority: savePriority.value,
+    jobLink: activeTabUrl || null,
+    jdText: jdInput.value.trim() || null,
+    matchScore: lastMatchScore,
+    status: "SAVED" // 先存成「感兴趣」,投了再到看板拖到已投递
+  };
+
+  saveToTrackerBtn.disabled = true;
+  setSaveStatus("正在保存...");
+
+  chrome.runtime.sendMessage({ type: "SAVE_APPLICATION", application }, (response) => {
+    saveToTrackerBtn.disabled = false;
+
+    if (!response || !response.success) {
+      setSaveStatus(response ? response.error : "保存失败", true);
+      return;
+    }
+
+    setSaveStatus(`已保存到投递记录:${response.data.company} · ${response.data.position}`);
+  });
+});
 
 openOptions.addEventListener("click", (e) => {
   e.preventDefault();

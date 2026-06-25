@@ -26,6 +26,13 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
       .catch((error) => sendResponse({ success: false, error: error.message }));
     return true;
   }
+
+  if (message.type === "SAVE_APPLICATION") {
+    handleSaveApplication(message.application)
+      .then((result) => sendResponse({ success: true, data: result }))
+      .catch((error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
 
 async function getApiKey() {
@@ -36,22 +43,38 @@ async function getApiKey() {
   return apiKey;
 }
 
+const REQUEST_TIMEOUT_MS = 30000;
+
 async function callClaude(apiKey, { system, content, maxTokens }) {
-  const response = await fetch("https://api.anthropic.com/v1/messages", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      "x-api-key": apiKey,
-      "anthropic-version": "2023-06-01",
-      "anthropic-dangerous-direct-browser-access": "true"
-    },
-    body: JSON.stringify({
-      model: "claude-sonnet-4-6",
-      max_tokens: maxTokens,
-      system,
-      messages: [{ role: "user", content }]
-    })
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch("https://api.anthropic.com/v1/messages", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": apiKey,
+        "anthropic-version": "2023-06-01",
+        "anthropic-dangerous-direct-browser-access": "true"
+      },
+      body: JSON.stringify({
+        model: "claude-sonnet-4-6",
+        max_tokens: maxTokens,
+        system,
+        messages: [{ role: "user", content }]
+      }),
+      signal: controller.signal
+    });
+  } catch (e) {
+    if (e.name === "AbortError") {
+      throw new Error(`请求超时(超过${REQUEST_TIMEOUT_MS / 1000}秒未响应),请检查网络后重试`);
+    }
+    throw new Error("网络请求失败,请检查网络连接后重试");
+  } finally {
+    clearTimeout(timeoutId);
+  }
 
   if (!response.ok) {
     const errText = await response.text();
@@ -143,21 +166,76 @@ async function handleExtractJd(pageText) {
     throw new Error("页面内容为空,无法识别");
   }
 
+  // 一次调用同时拿到 JD 正文 + 公司/岗位/城市,供「保存到投递记录」表单预填(不额外多花一次 API)
   const systemPrompt = `你会收到一段从招聘网站页面提取出来的杂乱文本,里面可能混杂导航栏、公司介绍、相似职位推荐、福利、页脚等噪音。
-请从中找出"当前这个职位的职位描述(JD)"部分,通常包括岗位职责、任职要求、技能要求、加分项等。
-将这段JD原样输出(可去掉明显无关的噪音,但不要改写、不要总结、不要翻译)。
-只输出JD正文本身,不要添加任何解释、标题、前后缀或 markdown 标记。
-如果页面中找不到明显的职位描述,请只输出:NO_JD`;
+请从中找出"当前这个职位"的信息,严格按照以下 JSON 格式返回结果,不要包含任何其他文字、解释或 markdown 代码块标记:
 
-  const text = await callClaude(apiKey, {
+{
+  "company": "<招聘公司名称,找不到则空字符串>",
+  "position": "<职位名称,找不到则空字符串>",
+  "city": "<工作城市,找不到则空字符串>",
+  "jd": "<当前职位的职位描述(JD)正文,通常包括岗位职责、任职要求、技能要求、加分项等;原样输出,可去掉明显无关的噪音,但不要改写、不要总结、不要翻译;找不到则空字符串>"
+}`;
+
+  const cleanText = await callClaude(apiKey, {
     system: systemPrompt,
     content: pageText,
-    maxTokens: 1500
+    maxTokens: 1600
   });
 
-  const jd = text.trim();
-  if (!jd || jd === "NO_JD") {
+  let parsed;
+  try {
+    parsed = JSON.parse(cleanText);
+  } catch (e) {
+    throw new Error("解析JD识别结果失败: " + cleanText.slice(0, 200));
+  }
+
+  const jd = (parsed.jd || "").trim();
+  if (!jd) {
     throw new Error("未能在本页识别到职位描述,请在页面上手动选中JD文本");
   }
-  return jd;
+
+  return {
+    jd,
+    company: (parsed.company || "").trim(),
+    position: (parsed.position || "").trim(),
+    city: (parsed.city || "").trim()
+  };
+}
+
+// 把当前岗位保存到 job-tracker 的投递记录(POST /api/applications)
+async function handleSaveApplication(application) {
+  if (!application || !application.company || !application.position) {
+    throw new Error("公司和岗位为必填");
+  }
+
+  const { trackerUrl } = await chrome.storage.local.get("trackerUrl");
+  const baseUrl = (trackerUrl || "http://localhost:3000").replace(/\/+$/, "");
+
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+  let response;
+  try {
+    response = await fetch(`${baseUrl}/api/applications`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(application),
+      signal: controller.signal
+    });
+  } catch (e) {
+    if (e.name === "AbortError") {
+      throw new Error(`请求超时(超过${REQUEST_TIMEOUT_MS / 1000}秒未响应),请检查投递记录工具是否在运行`);
+    }
+    throw new Error("无法连接投递记录工具,请确认它已启动、地址配置正确");
+  } finally {
+    clearTimeout(timeoutId);
+  }
+
+  if (!response.ok) {
+    const errText = await response.text();
+    throw new Error(`保存失败 (${response.status}): ${errText}`);
+  }
+
+  return response.json();
 }
